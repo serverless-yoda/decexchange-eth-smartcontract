@@ -3,21 +3,45 @@ import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contr
 
 contract DecExchange {
  
+    enum StatusType {
+        BUY,
+        SELL
+    }
+   
+   //STRUCT SECTIONS 
+    struct OrderDTO {
+        uint id;
+        StatusType statusType;
+        bytes32 tokenTickerName;
+        uint amount;
+        uint filled;
+        uint price;
+        uint date;
+    }
     //define the Token   to be use in the contract
     struct TokenDTO {
         address tokenAddress;
         bytes32 tokenTickerName;
     }
     
+    //MAPPING SECTION
     //create a mapping list holding the struct Token
     mapping(bytes32 => TokenDTO) public tokenMap;
-    bytes32[] public tokenArray;
-    
-    //mapping of trade balance
+     //create a mapping of trade balance
     mapping(address => mapping(bytes32 => uint)) public tradeBalanceMap;
-    
+    //crate a mapping for Trading Orders
+    mapping(bytes32 => mapping(uint => OrderDTO[])) public tradingOrderBookMap; //need to be sorted based on order type
+   
+   
+    //VARIABLES SECTIONS
+    bytes32[] public tokenArray;
     //admin address
     address public admin;
+    // counter for the next order id
+    uint nextOrderId;
+    //const for DAI token
+    bytes32 constant DAI = bytes32('DAI');
+    
     
     constructor() public {
         admin = msg.sender;
@@ -41,11 +65,37 @@ contract DecExchange {
         tokenArray.push(_tokenTickerName);
     }
     
-    
+    function addLimitOrderDTO(bytes32 _tokenTickerName,
+                              uint _amount,
+                              uint _price,
+                              StatusType _statusType) external validTokenName(_tokenTickerName) {
+        
+        //should not transact with DAI based tokenMap
+        require(_tokenTickerName != DAI, "DAI cant be traded");
+        if(_statusType == StatusType.SELL) {
+            require(tradeBalanceMap[msg.sender][_tokenTickerName] >= _amount,"Balance is too low");
+        }
+        else {
+            require(tradeBalanceMap[msg.sender][DAI] >= (_amount * _price),"DAI Balance is too low");
+        }
+        
+        OrderDTO[] storage orders = tradingOrderBookMap[_tokenTickerName][uint(_statusType)];
+        orders.push(OrderDTO(
+            nextOrderId,
+            _statusType,
+            _tokenTickerName,
+            _amount,
+            0,
+            _price,
+            now
+        ));
+        
+        //todo: add sorting
+    }
     
     //modifiers
     modifier onlyAdmin() {
-        require(admin == msg.sender,"Only Administrator can use this feature");
+        require(admin == msg.sender , "Only Administrator can use this feature");
         _;
     }
     
