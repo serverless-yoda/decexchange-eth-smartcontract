@@ -41,7 +41,20 @@ contract DecExchange {
     uint nextOrderId;
     //const for DAI token
     bytes32 constant DAI = bytes32('DAI');
+    //counter for the next trade id
+    uint nextTradeId;
     
+    //events
+    event NewTrade(
+      uint tradeId,
+      uint orderId,
+      bytes32 indexed tokentickerName,
+      address indexed firstTrader,
+      address indexed  secondtrader,
+      uint amount,
+      uint price,
+      uint date
+    );
     
     constructor() public {
         admin = msg.sender;
@@ -91,10 +104,10 @@ contract DecExchange {
         ));
         
         //todo: add sorting
-        uint len = orders.length -1;
+        uint len = orders.length-1;
         while(len > 0) {
-            if(_statusType  == StatusType.SELL && orders[len - 1].price > orders[len].price) break;
-            if(_statusType  == StatusType.BUY && orders[len - 1].price < orders[len].price) break;
+            if(_statusType == StatusType.SELL && orders[len - 1].price > orders[len].price) break;
+            if(_statusType == StatusType.BUY && orders[len - 1].price < orders[len].price) break;
             OrderDTO memory order = orders[len - 1];
             orders[len - 1] = orders[len];
             orders[len] = order;
