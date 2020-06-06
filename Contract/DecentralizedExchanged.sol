@@ -1,7 +1,9 @@
 pragma solidity ^0.6.3;
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/IERC20.sol";
-
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/math/SafeMath.sol";
 contract DecExchange {
+ 
+ using SafeMath for uint;
  
     enum StatusType {
         BUY,
@@ -63,12 +65,12 @@ contract DecExchange {
     
     function depositTokenDTO(uint _amount, bytes32 _tokenTickerName) external validTokenName(_tokenTickerName) {
         IERC20(tokenMap[_tokenTickerName].tokenAddress).transferFrom(msg.sender, address(this), _amount);
-        tradeBalanceMap[msg.sender][_tokenTickerName] += _amount;
+        tradeBalanceMap[msg.sender][_tokenTickerName] = tradeBalanceMap[msg.sender][_tokenTickerName].add(_amount);
         
     }
     
     function withdrawTokenDTO(uint _amount, bytes32 _tokenTickerName) external validTokenName(_tokenTickerName){
-        tradeBalanceMap[msg.sender][_tokenTickerName] -= _amount;
+        tradeBalanceMap[msg.sender][_tokenTickerName] = tradeBalanceMap[msg.sender][_tokenTickerName].sub(_amount);
         IERC20(tokenMap[_tokenTickerName].tokenAddress).transfer(msg.sender,  _amount);
     }
     
@@ -107,16 +109,16 @@ contract DecExchange {
             now
         ));
         
-        uint len = orders.length-1;
+        uint len = (orders.length > 0 ? orders.length - 1 : 0);
         while(len > 0) {
             if(_statusType == StatusType.SELL && orders[len - 1].price > orders[len].price) break;
             if(_statusType == StatusType.BUY && orders[len - 1].price < orders[len].price) break;
             OrderDTO memory order = orders[len - 1];
             orders[len - 1] = orders[len];
             orders[len] = order;
-            len--;
+            len = len.sub(1);
         }
-        nextOrderId++;
+        nextOrderId = nextOrderId.add(1);
     }
     
     function createMarketOrderDTO(bytes32 _tokenTickerName,
@@ -135,32 +137,34 @@ contract DecExchange {
          uint remaining = _amount;
          
          while(i < orders.length && remaining > 0){
-             uint available = orders[i].amount - orders[i].filled;
+             uint available = orders[i].amount.sub(orders[i].filled);
              uint matched = (remaining > available) ? available : remaining;
-             remaining -= matched;
-             orders[i].filled += matched;
+             remaining = remaining.sub(matched);
+             orders[i].filled = orders[i].filled.add(matched);
              emit NewTrade(nextOrderId, orders[i].id,_tokenTickerName,orders[i].trader,msg.sender,matched, orders[i].price,now);
-             //to be continue
+            
+            uint totalmatched = matched.mul(orders[i].price);
              
              if(_statusType == StatusType.SELL) {
-                  tradeBalanceMap[msg.sender][_tokenTickerName] -= matched;
-                  tradeBalanceMap[msg.sender][DAI] += matched * orders[i].price;
+                  tradeBalanceMap[msg.sender][_tokenTickerName] = tradeBalanceMap[msg.sender][_tokenTickerName].sub(matched);
+                  tradeBalanceMap[msg.sender][DAI] = tradeBalanceMap[msg.sender][DAI].add(totalmatched);
                   
-                  tradeBalanceMap[orders[i].trader][_tokenTickerName] += matched;
-                  tradeBalanceMap[orders[i].trader][DAI] -= matched * orders[i].price;
+                  tradeBalanceMap[orders[i].trader][_tokenTickerName] = tradeBalanceMap[orders[i].trader][_tokenTickerName].add(matched);
+                  tradeBalanceMap[orders[i].trader][DAI] = tradeBalanceMap[orders[i].trader][DAI].sub(totalmatched);
              }
              
              if(_statusType == StatusType.BUY) {
                  require(tradeBalanceMap[msg.sender][DAI] >= matched * orders[i].price, "DAI balance too low");
-                 tradeBalanceMap[msg.sender][_tokenTickerName] += matched;
-                 tradeBalanceMap[msg.sender][DAI] -= matched * orders[i].price;
+                 tradeBalanceMap[msg.sender][_tokenTickerName] = tradeBalanceMap[msg.sender][_tokenTickerName].add(matched);
+                 tradeBalanceMap[msg.sender][DAI] = tradeBalanceMap[msg.sender][DAI].sub(totalmatched);
                  
-                 tradeBalanceMap[orders[i].trader][_tokenTickerName] -= matched;
-                 tradeBalanceMap[orders[i].trader][DAI] += matched * orders[i].price;
+                 tradeBalanceMap[orders[i].trader][_tokenTickerName] = tradeBalanceMap[orders[i].trader][_tokenTickerName].sub(matched);
+                 
+                 tradeBalanceMap[orders[i].trader][DAI] = tradeBalanceMap[orders[i].trader][DAI].add(totalmatched);
              }
              
-             nextOrderId++;
-             i++;
+             nextOrderId = nextOrderId.add(1);
+             i = i.add(1);
          }
          
          //sorting
@@ -170,7 +174,7 @@ contract DecExchange {
                  orders[j] = orders[j + 1];
              }
              orders.pop();
-             i++;
+             i = i.add(1);
          }
          
     }
