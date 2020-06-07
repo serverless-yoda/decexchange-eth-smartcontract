@@ -187,6 +187,20 @@ contract DecExchange {
       returns(OrderDTO[] memory) {
       return tradingOrderBookMap[_tokenTickerName][uint(_statusType)];
     }
+
+    function getTokensDTO() 
+      external 
+      view 
+      returns(TokenDTO[] memory) {
+      TokenDTO[] memory _tokens = new TokenDTO[](tokenArray.length);
+      for (uint i = 0; i < tokenArray.length; i++) {
+          _tokens[i] = TokenDTO(
+          tokenMap[tokenArray[i]].tokenAddress,
+          tokenMap[tokenArray[i]].tokenTickerName
+        );
+      }
+      return _tokens;
+    }
     
     //modifiers
     modifier onlyAdmin() {
