@@ -178,6 +178,16 @@ contract DecExchange {
          }
          
     }
+
+    function getOrdersDTO(
+      bytes32 _tokenTickerName, 
+      StatusType _statusType) 
+      external 
+      view
+      returns(OrderDTO[] memory) {
+      return tradingOrderBookMap[_tokenTickerName][uint(_statusType)];
+    }
+    
     //modifiers
     modifier onlyAdmin() {
         require(admin == msg.sender , "Only Administrator can use this feature");
