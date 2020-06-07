@@ -4,4 +4,7 @@ import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contr
 
 contract RepToken is ERC20{
     constructor() ERC20('REP', 'Augur token') public {}
+    function faucet(address to, uint amount) external {
+    _mint(to, amount);
+  }
 }
