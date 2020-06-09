@@ -55,5 +55,13 @@ contract('DecExchange', (accounts) => {
         assert(balance.toString() === amount);
       });
     
+      it('should Not deposit tokens', async () => {
+        await expectRevert(dex.depositTokenDTO(
+            web3.utils.toWei('100'),
+            web3.utils.fromAscii('INVALID-TOKEN'),
+            {from: trader1}
+          ),'not a valid token')
+        
+      });
 
 })
