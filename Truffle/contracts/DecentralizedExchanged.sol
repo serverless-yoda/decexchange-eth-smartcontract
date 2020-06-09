@@ -5,15 +5,15 @@ import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 //import '@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol';
 
 contract DecExchange {
- 
+
  using SafeMath for uint;
- 
+
     enum StatusType {
         BUY,
         SELL
     }
-   
-   //STRUCT SECTIONS 
+
+    //STRUCT SECTIONS
     struct OrderDTO {
         uint id;
         address trader;
@@ -29,7 +29,7 @@ contract DecExchange {
         address tokenAddress;
         bytes32 tokenTickerName;
     }
-    
+
     //MAPPING SECTION
     //create a mapping list holding the struct Token
     mapping(bytes32 => TokenDTO) public tokenMap;
@@ -37,8 +37,7 @@ contract DecExchange {
     mapping(address => mapping(bytes32 => uint)) public tradeBalanceMap;
     //crate a mapping for Trading Orders
     mapping(bytes32 => mapping(uint => OrderDTO[])) public tradingOrderBookMap; //need to be sorted based on order type
-   
-   
+
     //VARIABLES SECTIONS
     bytes32[] public tokenArray;
     //admin address
@@ -49,7 +48,7 @@ contract DecExchange {
     bytes32 constant DAI = bytes32('DAI');
     //counter for the next trade id
     uint nextTradeId;
-    
+
     //events
     event NewTrade(
       uint tradeId,
@@ -61,15 +60,14 @@ contract DecExchange {
       uint price,
       uint date
     );
-    
+
     constructor() public {
         admin = msg.sender;
     }
-    
+
     function depositTokenDTO(uint _amount, bytes32 _tokenTickerName) external validTokenName(_tokenTickerName) {
         IERC20(tokenMap[_tokenTickerName].tokenAddress).transferFrom(msg.sender, address(this), _amount);
         tradeBalanceMap[msg.sender][_tokenTickerName] = tradeBalanceMap[msg.sender][_tokenTickerName].add(_amount);
-        
     }
     
     function withdrawTokenDTO(uint _amount, bytes32 _tokenTickerName) external validTokenName(_tokenTickerName){
