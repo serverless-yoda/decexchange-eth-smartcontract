@@ -55,7 +55,7 @@ contract('DecExchange', (accounts) => {
         assert(balance.toString() === amount);
       });
     
-      it('should Not deposit tokens', async () => {
+    it('should Not deposit tokens', async () => {
         await expectRevert(dex.depositTokenDTO(
             web3.utils.toWei('100'),
             web3.utils.fromAscii('INVALID-TOKEN'),
@@ -63,5 +63,22 @@ contract('DecExchange', (accounts) => {
           ),'not a valid token')
         
       });
+    
+    it("should withdraw tokens", async() => {
+        const amount = web3.utils.toWei('100');
+        await dex.depositTokenDTO(amount,DAI, {from: trader1});
+
+        await dex.withdrawTokenDTO(amount,DAI, {from: trader1});
+
+        const [balanceDex, balanceDai] = await Promise.all([
+            dex.tradeBalanceMap(trader1,DAI),
+            dai.balanceOf(trader1)
+           ]
+        );
+
+        assert(balanceDex.isZero());
+        assert(balanceDai.toString() === web3.utils.toWei('1000'));
+
+    });
 
 })

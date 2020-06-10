@@ -69,12 +69,12 @@ contract DecExchange {
         IERC20(tokenMap[_tokenTickerName].tokenAddress).transferFrom(msg.sender, address(this), _amount);
         tradeBalanceMap[msg.sender][_tokenTickerName] = tradeBalanceMap[msg.sender][_tokenTickerName].add(_amount);
     }
-    
+
     function withdrawTokenDTO(uint _amount, bytes32 _tokenTickerName) external validTokenName(_tokenTickerName){
         tradeBalanceMap[msg.sender][_tokenTickerName] = tradeBalanceMap[msg.sender][_tokenTickerName].sub(_amount);
         IERC20(tokenMap[_tokenTickerName].tokenAddress).transfer(msg.sender,  _amount);
     }
-    
+
     function addTokenDTO(address _tokenAddress, bytes32 _tokenTickerName) external onlyAdmin() {
         //insert to mapping
         tokenMap[_tokenTickerName] = TokenDTO(_tokenAddress, _tokenTickerName);
