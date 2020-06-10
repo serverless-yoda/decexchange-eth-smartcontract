@@ -71,6 +71,7 @@ contract DecExchange {
     }
 
     function withdrawTokenDTO(uint _amount, bytes32 _tokenTickerName) external validTokenName(_tokenTickerName){
+        require(tradeBalanceMap[msg.sender][_tokenTickerName] >= _amount,"Balance is too low");
         tradeBalanceMap[msg.sender][_tokenTickerName] = tradeBalanceMap[msg.sender][_tokenTickerName].sub(_amount);
         IERC20(tokenMap[_tokenTickerName].tokenAddress).transfer(msg.sender,  _amount);
     }
