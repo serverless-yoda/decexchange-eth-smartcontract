@@ -5,6 +5,11 @@ const Dai = artifacts.require("DaiToken.sol");
 const Bat = artifacts.require("BatToken.sol");
 const Dex = artifacts.require("DecExchange.sol");
 
+const STATUS = {
+    BUY: 0,
+    SELL: 1
+};
+
 contract('DecExchange', (accounts) => {
     let zrx,rep,dai,bat,dex;
 
@@ -101,5 +106,28 @@ contract('DecExchange', (accounts) => {
                 {from: trader1}),
             "Balance is too low"
         )
+    });
+
+    it("should allow to add limit order", async() => {
+        const amount = web3.utils.toWei('100');
+        await dex.depositTokenDTO(amount,DAI, {from: trader1});
+
+        await dex.addLimitOrderDTO(
+            REP,
+            web3.utils.toWei('10'),
+            10,
+            STATUS.BUY,
+            {from: trader1}
+        );
+
+        const buyorders = await dex.getOrdersDTO(REP,STATUS.BUY);
+        const sellorders = await dex.getOrdersDTO(REP,STATUS.SELL);
+        assert(buyorders.length === 1);
+        assert(sellorders.length === 0);
+        assert(buyorders[0].trader === trader1);
+        assert(buyorders[0].tokenTickerName === web3.utils.padRight(REP,64));
+        assert(buyorders[0].amount === web3.utils.toWei('10'));
+        assert(buyorders[0].price === '10');
+
     });
 })

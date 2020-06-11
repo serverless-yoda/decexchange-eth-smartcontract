@@ -82,23 +82,22 @@ contract DecExchange {
         //push to tokenArray the tokentickerName
         tokenArray.push(_tokenTickerName);
     }
-    
+
     function addLimitOrderDTO(bytes32 _tokenTickerName,
                               uint _amount,
                               uint _price,
-                              StatusType _statusType) 
-                              external 
-                              validTokenName(_tokenTickerName) 
-                              notBasedDAI(_tokenTickerName) 
+                              StatusType _statusType)
+                              external
+                              validTokenName(_tokenTickerName)
+                              notBasedDAI(_tokenTickerName)
     {
-    
         if(_statusType == StatusType.SELL) {
             require(tradeBalanceMap[msg.sender][_tokenTickerName] >= _amount,"Balance is too low");
         }
         else {
             require(tradeBalanceMap[msg.sender][DAI] >= (_amount * _price),"DAI Balance is too low");
         }
-        
+
         OrderDTO[] storage orders = tradingOrderBookMap[_tokenTickerName][uint(_statusType)];
         orders.push(OrderDTO(
             nextOrderId,
@@ -110,7 +109,7 @@ contract DecExchange {
             _price,
             now
         ));
-        
+                
         uint len = (orders.length > 0 ? orders.length - 1 : 0);
         while(len > 0) {
             if(_statusType == StatusType.SELL && orders[len - 1].price > orders[len].price) break;
