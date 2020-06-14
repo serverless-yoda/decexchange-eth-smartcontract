@@ -143,9 +143,10 @@ contract('DecExchange', (accounts) => {
         buyorders = await dex.getOrdersDTO(REP,STATUS.BUY);
         sellorders = await dex.getOrdersDTO(REP,STATUS.SELL);
         assert(buyorders.length === 2);
-        //assert(sellorders.length === 0);
-        //assert(buyorders[0].trader === trader1);
-        //assert(buyorders[1].trader === trader2);
+        assert(sellorders.length === 0);
+        //TODO: CHECK SORTING
+        //assert(buyorders[0].trader === trader2);
+        //assert(buyorders[1].trader === trader1);
         
     });
 })
