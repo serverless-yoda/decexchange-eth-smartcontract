@@ -109,7 +109,7 @@ contract('DecExchange', (accounts) => {
     });
 
     it("should allow to add limit order", async() => {
-        const amount = web3.utils.toWei('100');
+        let amount = web3.utils.toWei('100');
         await dex.depositTokenDTO(amount,DAI, {from: trader1});
 
         await dex.addLimitOrderDTO(
@@ -120,8 +120,8 @@ contract('DecExchange', (accounts) => {
             {from: trader1}
         );
 
-        const buyorders = await dex.getOrdersDTO(REP,STATUS.BUY);
-        const sellorders = await dex.getOrdersDTO(REP,STATUS.SELL);
+        let buyorders = await dex.getOrdersDTO(REP,STATUS.BUY);
+        let sellorders = await dex.getOrdersDTO(REP,STATUS.SELL);
         assert(buyorders.length === 1);
         assert(sellorders.length === 0);
         assert(buyorders[0].trader === trader1);
@@ -129,5 +129,23 @@ contract('DecExchange', (accounts) => {
         assert(buyorders[0].amount === web3.utils.toWei('10'));
         assert(buyorders[0].price === '10');
 
+        //adding another limit order for trader 2
+        amount = web3.utils.toWei('200');
+        await dex.depositTokenDTO(amount,DAI, {from: trader2});
+
+        await dex.addLimitOrderDTO(
+            REP,
+            web3.utils.toWei('10'),
+            11,
+            STATUS.BUY,
+            {from: trader2}
+        );
+        buyorders = await dex.getOrdersDTO(REP,STATUS.BUY);
+        sellorders = await dex.getOrdersDTO(REP,STATUS.SELL);
+        assert(buyorders.length === 2);
+        //assert(sellorders.length === 0);
+        //assert(buyorders[0].trader === trader1);
+        //assert(buyorders[1].trader === trader2);
+        
     });
 })
