@@ -149,4 +149,16 @@ contract('DecExchange', (accounts) => {
         //assert(buyorders[1].trader === trader1);
         
     });
+
+    it("should NOT allow to create Limit order if token does not exist", async() => {
+        await expectRevert(
+            dex.addLimitOrderDTO(
+                web3.utils.fromAscii("INVALID-TOKEN"),
+                web3.utils.toWei('10'),
+                10,
+                STATUS.BUY,
+                {from: trader1}
+            ), "not a valid token"
+        );
+    });
 })
