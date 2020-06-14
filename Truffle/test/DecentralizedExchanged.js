@@ -189,4 +189,20 @@ contract('DecExchange', (accounts) => {
             ), "Balance is too low"
         );
     });
+
+    it("should NOT allow to create Limit order if DAI balance is too low", async() => {
+        await dex.depositTokenDTO(web3.utils.toWei('99'),
+        DAI, 
+        {from: trader1});
+
+        await expectRevert(
+            dex.addLimitOrderDTO(
+                REP,
+                web3.utils.toWei('100'),
+                10,
+                STATUS.BUY,
+                {from: trader1}
+            ), "DAI Balance is too low"
+        );
+    });
 })
