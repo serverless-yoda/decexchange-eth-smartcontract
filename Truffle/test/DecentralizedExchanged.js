@@ -161,4 +161,16 @@ contract('DecExchange', (accounts) => {
             ), "not a valid token"
         );
     });
+
+    it("should NOT allow to create Limit order if token is DAI", async() => {
+        await expectRevert(
+            dex.addLimitOrderDTO(
+                DAI,
+                web3.utils.toWei('10'),
+                10,
+                STATUS.BUY,
+                {from: trader1}
+            ), "DAI cant be traded"
+        );
+    });
 })
