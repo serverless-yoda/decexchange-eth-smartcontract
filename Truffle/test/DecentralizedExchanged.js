@@ -233,18 +233,18 @@ contract('DecExchange', (accounts) => {
              {from: trader2});
              
         const balances = await Promise.all([
-            dex.tradeBalanceMap(trader1,REP),
             dex.tradeBalanceMap(trader1,DAI),
-            dex.tradeBalanceMap(trader2,REP),
-            dex.tradeBalanceMap(trader2,DAI)
+            dex.tradeBalanceMap(trader1,REP),
+            dex.tradeBalanceMap(trader2,DAI),
+            dex.tradeBalanceMap(trader2,REP)
         ]);
         const orders = await dex.getOrdersDTO(REP,STATUS.BUY);
         console.log(orders[0])
-        //assert(orders[0].filled === web3.utils.toWei('5'));
-        //assert(balances[0].toString() === web3.utils.toWei('50'));
-        //assert(balances[1].toString() === web3.utils.toWei('5'));
-        //assert(balances[2].toString() === web3.utils.toWei('50'));
-        //assert(balances[3].toString() === web3.utils.toWei('95'));
+        assert(orders[0].filled === web3.utils.toWei('5'));
+        assert(balances[0].toString() === web3.utils.toWei('50'));
+        assert(balances[1].toString() === web3.utils.toWei('5'));
+        assert(balances[2].toString() === web3.utils.toWei('50'));
+        assert(balances[3].toString() === web3.utils.toWei('95'));
         
         
     });
