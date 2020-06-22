@@ -228,6 +228,11 @@ contract('DecExchange', (accounts) => {
              STATUS.SELL,
              {from: trader2});
              
-
+        const balances = await Promise.all([
+            dex.tradeBalanceMap(trader1,REP),
+            dex.tradeBalanceMap(trader1,DAI),
+            dex.tradeBalanceMap(trader2,REP),
+            dex.tradeBalanceMap(trader2,DAI)
+        ]);
     });
 })
