@@ -205,4 +205,29 @@ contract('DecExchange', (accounts) => {
             ), "DAI Balance is too low"
         );
     });
+
+    it("should create a market order and match against existing limit order", async() => 
+    {
+        await dex.depositTokenDTO(web3.utils.toWei('100'),
+        DAI, 
+        {from: trader1});
+
+        await dex.addLimitOrderDTO(
+            REP,
+            web3.utils.toWei('10'),
+            10,
+            STATUS.BUY,
+            {from: trader1}
+        );
+
+        await dex.depositTokenDTO(web3.utils.toWei('100'),
+        REP, 
+        {from: trader2});
+
+        await dex.createMarketOrderDTO(REP,web3.utils.toWei('5'),
+             STATUS.SELL,
+             {from: trader2});
+             
+
+    });
 })
