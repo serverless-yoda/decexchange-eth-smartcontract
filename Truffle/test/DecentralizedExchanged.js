@@ -245,7 +245,17 @@ contract('DecExchange', (accounts) => {
         assert(balances[1].toString() === web3.utils.toWei('5'));
         assert(balances[2].toString() === web3.utils.toWei('50'));
         assert(balances[3].toString() === web3.utils.toWei('95'));
-        
-        
     });
+
+    it("should NOT allow to create Market order if token does not exist", async() => {
+        await expectRevert(
+            dex.createMarketOrderDTO(
+                web3.utils.fromAscii("INVALID-TOKEN"),
+                web3.utils.toWei('10'),
+                STATUS.BUY,
+                {from: trader1}
+            ), "not a valid token"
+        );
+    });
+
 })
