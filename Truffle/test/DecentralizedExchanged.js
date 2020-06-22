@@ -208,7 +208,8 @@ contract('DecExchange', (accounts) => {
 
     it("should create a market order and match against existing limit order", async() => 
     {
-        await dex.depositTokenDTO(web3.utils.toWei('100'),
+        await dex.depositTokenDTO(
+        web3.utils.toWei('100'),
         DAI, 
         {from: trader1});
 
@@ -220,11 +221,14 @@ contract('DecExchange', (accounts) => {
             {from: trader1}
         );
 
-        await dex.depositTokenDTO(web3.utils.toWei('100'),
+        await dex.depositTokenDTO(
+        web3.utils.toWei('100'),
         REP, 
         {from: trader2});
 
-        await dex.createMarketOrderDTO(REP,web3.utils.toWei('5'),
+        await dex.createMarketOrderDTO(
+            REP,
+            web3.utils.toWei('5'),
              STATUS.SELL,
              {from: trader2});
              
@@ -234,5 +238,14 @@ contract('DecExchange', (accounts) => {
             dex.tradeBalanceMap(trader2,REP),
             dex.tradeBalanceMap(trader2,DAI)
         ]);
+        const orders = await dex.getOrdersDTO(REP,STATUS.BUY);
+        console.log(orders[0])
+        //assert(orders[0].filled === web3.utils.toWei('5'));
+        //assert(balances[0].toString() === web3.utils.toWei('50'));
+        //assert(balances[1].toString() === web3.utils.toWei('5'));
+        //assert(balances[2].toString() === web3.utils.toWei('50'));
+        //assert(balances[3].toString() === web3.utils.toWei('95'));
+        
+        
     });
 })

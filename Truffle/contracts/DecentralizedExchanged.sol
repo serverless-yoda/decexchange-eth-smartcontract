@@ -133,7 +133,7 @@ contract DecExchange {
             require(tradeBalanceMap[msg.sender][_tokenTickerName] > _amount,"Balance is too low");
          }                 
          
-         OrderDTO[] storage orders = tradingOrderBookMap[_tokenTickerName][uint(_statusType == StatusType.BUY ? StatusType.BUY : StatusType.SELL)];
+         OrderDTO[] storage orders = tradingOrderBookMap[_tokenTickerName][uint(_statusType == StatusType.BUY ? StatusType.SELL : StatusType.BUY)];
          uint i;
          uint remaining = _amount;
          
